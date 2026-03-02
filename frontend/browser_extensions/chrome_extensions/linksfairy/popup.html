@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Link's Fairy</title>
+    <style>
+      :root {
+        --bg: #f4f6fa;
+        --card: #ffffff;
+        --text: #17223b;
+        --muted: #5b6984;
+        --safe: #1f9b5a;
+        --caution: #cc9f1d;
+        --risk: #c72727;
+        --unknown: #7e8aa3;
+        --border: #d9deea;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 12px;
+        width: var(--linksfairy-popup-width, 760px);
+        min-width: var(--linksfairy-popup-width, 760px);
+        max-width: var(--linksfairy-popup-width, 760px);
+        background: linear-gradient(155deg, #ecf2ff 0%, var(--bg) 45%);
+        color: var(--text);
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+        box-shadow: 0 8px 22px rgba(19, 31, 56, 0.12);
+        overflow: hidden;
+      }
+
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        color: #fff;
+        background: linear-gradient(120deg, #5f6f87, #778ca3);
+      }
+
+      .head.safe {
+        background: linear-gradient(120deg, #1f7f53, #31a86b);
+      }
+
+      .head.caution {
+        background: linear-gradient(120deg, #b0891f, #d0b32d);
+      }
+
+      .head.risk {
+        background: linear-gradient(120deg, #9d2323, #ca3232);
+      }
+
+      .title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .state {
+        font-size: 12px;
+        opacity: 0.95;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .summary {
+        margin: 0 0 10px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.35;
+        white-space: pre-wrap;
+      }
+
+      .analysis-meta {
+        margin: -2px 0 10px;
+        font-size: 11px;
+        line-height: 1.3;
+        color: #4d607c;
+        text-align: center;
+      }
+
+      .section {
+        margin-top: 10px;
+      }
+
+      .section h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+      }
+
+      .section p,
+      .section li {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .section p {
+        margin: 0;
+      }
+
+      .section ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .feedback {
+        margin-top: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #f9fbff;
+        padding: 10px;
+      }
+
+      .feedback-title {
+        margin: 0 0 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #243755;
+      }
+
+      .feedback-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .feedback-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .feedback-btn {
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 18px;
+        min-width: 42px;
+        min-height: 34px;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+
+      .feedback-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .feedback-btn-yes {
+        opacity: 0.85;
+        background: #1f8f4f;
+      }
+
+      .feedback-btn-no {
+        opacity: 0.85;
+        background: #c43333;
+      }
+
+      .feedback-btn-selected {
+        opacity: 1;
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+      }
+
+      .feedback-count {
+        font-size: 11px;
+        color: #536987;
+      }
+
+      .feedback-msg {
+        margin: 8px 0 0;
+        font-size: 11px;
+        color: #4d607c;
+        min-height: 14px;
+      }
+
+      .feedback-form {
+        margin-top: 8px;
+        border-top: 1px solid var(--border);
+        padding-top: 8px;
+      }
+
+      .feedback-form p {
+        margin: 0 0 6px;
+        font-size: 11px;
+        color: #4d607c;
+      }
+
+      .feedback-form textarea,
+      .feedback-form select {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 7px 8px;
+        font-size: 12px;
+        color: var(--text);
+        background: #ffffff;
+      }
+
+      .feedback-form textarea {
+        min-height: 52px;
+        resize: vertical;
+      }
+
+      .feedback-form select {
+        margin-bottom: 6px;
+      }
+
+      .feedback-form-actions {
+        margin-top: 6px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .feedback-submit-btn {
+        border: 0;
+        border-radius: 8px;
+        background: #14559b;
+        color: #fff;
+        font-size: 12px;
+        padding: 7px 10px;
+        cursor: pointer;
+      }
+
+      .feedback-submit-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 8px 12px 12px;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 8px;
+        background: #14559b;
+        color: #fff;
+        font-size: 12px;
+        padding: 7px 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="card">
+      <header id="head" class="head">
+        <h1 class="title">Link's Fairy</h1>
+        <span id="stateLabel" class="state"></span>
+      </header>
+      <div class="content">
+        <p id="summary" class="summary muted"></p>
+        <p id="analysisMeta" class="analysis-meta muted"></p>
+        <section id="purchaseSection" class="section" hidden>
+          <h3 id="purchaseHeading"></h3>
+          <p id="purchaseText"></p>
+        </section>
+        <section id="reasonsSection" class="section" hidden>
+          <h3 id="reasonsHeading"></h3>
+          <ul id="reasonsList"></ul>
+        </section>
+        <section id="feedbackSection" class="feedback" hidden>
+          <p id="feedbackTitle" class="feedback-title"></p>
+          <div class="feedback-actions">
+            <div class="feedback-option">
+              <button id="feedbackYesBtn" class="feedback-btn feedback-btn-yes" type="button" aria-label="">👍</button>
+              <div id="feedbackYesCount" class="feedback-count">0</div>
+            </div>
+            <div class="feedback-option">
+              <button id="feedbackNoBtn" class="feedback-btn feedback-btn-no" type="button" aria-label="">👎</button>
+              <div id="feedbackNoCount" class="feedback-count">0</div>
+            </div>
+          </div>
+          <div id="feedbackForm" class="feedback-form" hidden>
+            <p id="feedbackFormHint"></p>
+            <div id="feedbackAdvancedRow" hidden>
+              <select id="feedbackDownReason" aria-label=""></select>
+            </div>
+            <textarea id="feedbackDownComment" placeholder=""></textarea>
+            <div class="feedback-form-actions">
+              <button id="feedbackDownSubmitBtn" class="feedback-submit-btn" type="button"></button>
+            </div>
+          </div>
+          <p id="feedbackMessage" class="feedback-msg"></p>
+        </section>
+      </div>
+      <footer class="footer">
+        <button id="settingsBtn" class="btn" type="button"></button>
+      </footer>
+    </article>
+    <script src="scripts/popup.js"></script>
+  </body>
+</html>

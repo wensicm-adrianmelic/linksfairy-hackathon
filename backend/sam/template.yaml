@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Link's Fairy backend API (lookup, report).
+
+Parameters:
+  ProjectPrefix:
+    Type: String
+    Default: linksfairy
+  Env:
+    Type: String
+    Default: dev
+  StageName:
+    Type: String
+    Default: prod
+  AnalysisTableName:
+    Type: String
+    Default: linksfairy-kv
+  AnalysisTtlSeconds:
+    Type: Number
+    Default: 604800
+  AnalysisVersion:
+    Type: String
+    Default: v1.1
+  LambdaTimeoutSeconds:
+    Type: Number
+    Default: 12
+  LambdaMemoryMegabytes:
+    Type: Number
+    Default: 256
+  MistralParameterName:
+    Type: String
+    Default: mistral-dev
+  MistralModel:
+    Type: String
+    Default: mistral-medium-latest
+  MistralTranslationModel:
+    Type: String
+    Default: mistral-small-latest
+  MistralRequestTimeoutSeconds:
+    Type: Number
+    Default: 12
+  CorsAllowOrigins:
+    Type: CommaDelimitedList
+    Default: "*"
+
+Globals:
+  Function:
+    Timeout: !Ref LambdaTimeoutSeconds
+    MemorySize: !Ref LambdaMemoryMegabytes
+    Runtime: python3.14
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref AnalysisTableName
+        ANALYSIS_TTL_SECONDS: !Ref AnalysisTtlSeconds
+        ANALYSIS_VERSION: !Ref AnalysisVersion
+        APP_NAME: !Sub "${ProjectPrefix}-${Env}-backend"
+        MISTRAL_PARAMETER_NAME: !Ref MistralParameterName
+        MISTRAL_MODEL: !Ref MistralModel
+        MISTRAL_TRANSLATION_MODEL: !Ref MistralTranslationModel
+        MISTRAL_REQUEST_TIMEOUT_SECONDS: !Ref MistralRequestTimeoutSeconds
+        ALLOWED_ORIGINS: !Join [",", !Ref CorsAllowOrigins]
+
+Resources:
+  PageAnalysisTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref AnalysisTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: Project
+          Value: linksfairy
+        - Key: Environment
+          Value: !Ref Env
+        - Key: ManagedBy
+          Value: cloudformation
+
+  LinksfairyHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: !Sub "${ProjectPrefix}-${Env}-backend-api"
+      StageName: !Ref StageName
+      CorsConfiguration:
+        AllowMethods:
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - content-type
+          - x-requested-with
+        AllowOrigins: !Ref CorsAllowOrigins
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 40
+        ThrottlingRateLimit: 20
+      Tags:
+        Project: linksfairy
+        Environment: !Ref Env
+        ManagedBy: cloudformation
+
+  BackendLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ProjectPrefix}-${Env}-backend-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${ProjectPrefix}-${Env}-backend-lambda-policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                Resource: !GetAtt PageAnalysisTable.Arn
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${MistralParameterName}"
+      Tags:
+        - Key: Project
+          Value: linksfairy
+        - Key: Environment
+          Value: !Ref Env
+        - Key: ManagedBy
+          Value: cloudformation
+
+  BackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ProjectPrefix}-${Env}-backend-api"
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Role: !GetAtt BackendLambdaRole.Arn
+      Tags:
+        Project: linksfairy
+        Environment: !Ref Env
+        ManagedBy: cloudformation
+      Events:
+        Lookup:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref LinksfairyHttpApi
+            Path: /v1/lookup
+            Method: POST
+        Report:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref LinksfairyHttpApi
+            Path: /v1/report
+            Method: POST
+
+Outputs:
+  StackName:
+    Value: !Sub "${AWS::StackName}"
+    Description: CloudFormation stack name for all Link's Fairy backend resources.
+  ApiBaseUrl:
+    Description: API base URL for backend endpoints.
+    Value: !Sub
+      - "https://${ApiId}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+      - ApiId: !Ref LinksfairyHttpApi
+        Stage: !Ref StageName
+    Export:
+      Name: !Sub "${ProjectPrefix}-${Env}-${StageName}-api-base-url"
+  ApiName:
+    Value: !Ref LinksfairyHttpApi
+    Description: HTTP API logical name.
+  LambdaName:
+    Value: !Ref BackendFunction
+    Description: Lambda function name.
+  TableName:
+    Value: !Ref PageAnalysisTable
+    Description: DynamoDB table name.
+  LinksfairyEnvironmentTag:
+    Value: !Sub "${ProjectPrefix}-${Env}"

@@ -1,0 +1,30 @@
+# Dependency directories
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
+.coverage
+**/.coverage
+.aws-sam/
+**/.aws-sam/
+**/events/.last_event.json
+**/.~lock*
+.DS_Store
+Thumbs.db
+
+
+# Environment files
+*.env
+.env
+.env.*
+
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+*.secret
+*secret*
+credentials*
+config*secret*
+*token*
+kaggle.json
+openai_api_key.json

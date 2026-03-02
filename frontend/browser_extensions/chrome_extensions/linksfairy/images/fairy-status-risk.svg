@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <radialGradient id="orbRed" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#ffd0d0" stop-opacity="0.9"/>
+      <stop offset="70%" stop-color="#ff1a1a" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#b80000" stop-opacity="1"/>
+    </radialGradient>
+
+    <linearGradient id="wingFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#f3d6d6" stop-opacity="0.22"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Rastro -->
+  <g opacity="0.95" filter="url(#softGlow)">
+    <circle cx="78" cy="162" r="7" fill="#ff1a1a" opacity="0.35"/>
+    <circle cx="62" cy="176" r="4.5" fill="#ff1a1a" opacity="0.28"/>
+    <circle cx="48" cy="190" r="3.2" fill="#ff1a1a" opacity="0.22"/>
+    <circle cx="36" cy="204" r="2.4" fill="#ff1a1a" opacity="0.18"/>
+  </g>
+
+  <!-- Alas (forma tipo pétalo como la referencia) -->
+  <g filter="url(#softGlow)" stroke="#7f9090" stroke-opacity="0.9" stroke-width="2.2"
+     stroke-linecap="round" stroke-linejoin="round" fill="url(#wingFill)">
+
+    <!-- Ala grande superior-izquierda -->
+    <path d="M112 98
+             C92 78, 64 56, 44 70
+             C26 84, 40 112, 66 138
+             C78 150, 96 146, 106 132
+             C114 121, 118 112, 120 106
+             C122 102, 118 100, 112 98 Z"/>
+
+    <!-- Ala derecha -->
+    <path d="M156 114
+             C182 96, 214 96, 222 112
+             C232 132, 208 152, 178 152
+             C166 152, 158 144, 156 134
+             C154 124, 152 118, 156 114 Z"/>
+
+    <!-- Ala pequeña inferior-derecha (vertical) -->
+    <path d="M134 150
+             C150 166, 160 192, 144 202
+             C126 214, 110 190, 114 168
+             C116 158, 124 152, 134 150 Z"/>
+
+    <!-- Ala pequeña izquierda -->
+    <path d="M92 128
+             C68 134, 48 146, 52 160
+             C56 176, 80 174, 98 160
+             C108 152, 108 140, 102 134
+             C98 130, 96 128, 92 128 Z"/>
+
+    <!-- Vetas suaves -->
+    <g fill="none" stroke="#7f9090" stroke-opacity="0.35" stroke-width="1.4">
+      <path d="M104 104 C86 90, 64 78, 50 80"/>
+      <path d="M104 118 C86 110, 68 98, 54 96"/>
+      <path d="M162 124 C184 116, 206 114, 216 120"/>
+      <path d="M160 138 C182 134, 202 132, 214 136"/>
+      <path d="M126 160 C134 174, 140 188, 136 198"/>
+      <path d="M84 144 C72 150, 62 160, 62 166"/>
+    </g>
+  </g>
+
+  <!-- Orbe -->
+  <g filter="url(#softGlow)">
+    <circle cx="130" cy="110" r="54" fill="url(#orbRed)"/>
+    <ellipse cx="112" cy="92" rx="22" ry="18" fill="#ffffff" opacity="0.55"/>
+    <ellipse cx="120" cy="100" rx="10" ry="8" fill="#ffffff" opacity="0.35"/>
+  </g>
+</svg>
