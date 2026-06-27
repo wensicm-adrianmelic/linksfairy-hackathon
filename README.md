@@ -2,104 +2,102 @@
 
 <p align="center">
   <a href="https://youtu.be/pWsfGoO9NTg" target="_blank" rel="noopener">
-    <img width="560" alt="Link's Fairy demo" src="https://img.youtube.com/vi/pWsfGoO9NTg/hqdefault.jpg" />
+    <img width="560" alt="Demo de Link's Fairy" src="https://img.youtube.com/vi/pWsfGoO9NTg/hqdefault.jpg" />
   </a>
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/pWsfGoO9NTg">Watch the demo</a>
+  <a href="https://youtu.be/pWsfGoO9NTg">Ver la demo</a>
 </p>
 
-Collective AI for safer browsing.
+IA colectiva para navegar con más seguridad.
 
-Link's Fairy is a browser assistant that detects risky online pages, explains why in plain language, and lets the next user benefit from prior analysis.
+Link's Fairy es un asistente de navegador que detecta páginas online arriesgadas, explica por qué en lenguaje claro y permite que el siguiente usuario se beneficie del análisis previo.
 
-## What problem are we solving?
+## Qué problema resolvemos
 
-People can be tricked by convincing but unsafe pages, domain confusion, manipulative purchase flows, and misleading information.
+La gente puede caer en páginas convincentes pero inseguras, confusión de dominios, flujos de compra manipulativos e información engañosa.
 
-Most users need a simple signal before acting:
+La mayoría de usuarios necesita una señal simple antes de actuar:
 
-- is it likely safe,
-- what smells suspicious,
-- and what should I do now.
+- si parece segura,
+- qué huele raro,
+- y qué conviene hacer ahora.
 
-Current tools are often too technical, too generic, or too slow for normal browsing.
+Las herramientas actuales suelen ser demasiado técnicas, demasiado genéricas o demasiado lentas para una navegación normal.
 
-## What does this MVP do?
+## Qué hace este MVP
 
-The MVP analyzes the current page context and returns:
+El MVP analiza el contexto de la página actual y devuelve:
 
-- a short summary,
-- readable reasons,
-- a confidence-aware recommendation,
-- a traffic-light signal,
-- and a lightweight private feedback loop (`👍` / `👎`) with optional comments.
+- un resumen corto,
+- razones legibles,
+- una recomendación con conciencia de confianza,
+- una señal tipo semáforo,
+- y un bucle de feedback privado y ligero con comentarios opcionales.
 
-## Why this is different
+## Por qué es distinto
 
-Most tools analyze each user separately.
+La mayoría de herramientas analiza a cada usuario por separado.
 
-Link's Fairy stores a shared analysis result for a page, so the next user gets faster answers and lower cost, without re-running the full AI analysis every time.
+Link's Fairy guarda un resultado de análisis compartido para una página, así que el siguiente usuario obtiene respuestas más rápidas y con menor coste sin relanzar el análisis completo cada vez.
 
-## User flow
+## Flujo de usuario
 
-1. User opens a page.
-2. Opens the extension popup.
-3. Extension collects a compact page snapshot.
-4. Backend checks cache.
-5. If cache miss, backend generates analysis and stores it.
-6. Result is shown immediately in popup with safe-language explanation.
-7. Optional private feedback is sent back to improve future responses.
+1. El usuario abre una página.
+2. Abre el popup de la extensión.
+3. La extensión recoge un snapshot compacto de la página.
+4. El backend consulta la caché.
+5. Si hay miss, el backend genera el análisis y lo almacena.
+6. El resultado se muestra al instante en el popup con una explicación clara.
+7. El feedback privado opcional vuelve al sistema para mejorar respuestas futuras.
 
-## Architecture
+## Arquitectura
 
-- **Frontend**: Chrome extension (Manifest V3) with popup, options and background worker.
-- **Backend**: AWS API Gateway + Lambda (SAM).
-- **Storage**: DynamoDB for shared analyses and feedback.
-- **AI**: Mistral provides structured analysis and translation text.
+- **Frontend**: extensión de Chrome con Manifest V3, popup, opciones y background worker.
+- **Backend**: AWS API Gateway + Lambda con SAM.
+- **Storage**: DynamoDB para análisis compartidos y feedback.
+- **IA**: Mistral aporta análisis estructurado y texto de traducción.
 
-### API surface
+### Superficie API
 
-- `POST /v1/lookup`
-  - Check cache and generate analysis if needed.
-- `POST /v1/report`
-  - Store lightweight private feedback.
+- `POST /v1/lookup`: consulta la caché y genera análisis si hace falta.
+- `POST /v1/report`: guarda feedback privado ligero.
 
-## Design principles
+## Principios de diseño
 
-- Plain language first.
-- Explainability over technical jargon.
-- Privacy by design.
-- Cheap operations by reusing shared analysis.
-- Community improvement over private-only scoring.
+- Lenguaje claro por delante.
+- Explicabilidad por encima de jerga técnica.
+- Privacidad por diseño.
+- Operación barata gracias a reutilizar análisis compartidos.
+- Mejora colectiva frente a scoring privado aislado.
 
-## Repository layout
+## Estructura del repositorio
 
-- `backend/sam`: backend API, SAM template and Lambda handlers.
-- `frontend/browser_extensions/chrome_extensions/linksfairy`: extension source.
-- `scripts`: helper scripts.
-- `demo`: place demo video and presentation assets.
+- `backend/sam`: backend API, template SAM y handlers Lambda.
+- `frontend/browser_extensions/chrome_extensions/linksfairy`: código de la extensión.
+- `scripts`: scripts auxiliares.
+- `demo`: vídeo y assets de presentación.
 
-## Vision beyond this MVP
+## Visión más allá de este MVP
 
-This first version focuses on web safety and suspicious commerce flows. Long-term the same architecture can cover:
+Esta primera versión se centra en seguridad web y flujos de compra sospechosos. A largo plazo, la misma arquitectura puede cubrir:
 
-- concise summaries for long pages and videos,
-- bias and manipulation detection,
-- argument quality and misinformation checks,
-- community-ranked safety notes.
+- resúmenes concisos de páginas y vídeos largos,
+- detección de sesgos y manipulación,
+- comprobaciones de calidad argumental y desinformación,
+- notas de seguridad priorizadas por la comunidad.
 
-The long-term vision remains: an **immune system for the mind**, starting from safer browsing.
+La visión de fondo sigue siendo la misma: un **sistema inmunitario para la mente**, empezando por una navegación más segura.
 
-## Safety notes
+## Notas de seguridad
 
-This is a prototype safety assistant.
-It provides risk framing, not legal judgments.
-Use it as decision support, not as definitive truth.
+Esto es un asistente de seguridad en fase prototipo.
+Ofrece framing de riesgo, no juicios legales.
+Úsalo como apoyo a la decisión, no como verdad definitiva.
 
 ## Setup
 
-- Configure AWS and Mistral credentials in your backend environment.
-- Deploy backend with SAM.
-- Load extension in Chrome developer mode.
+- Configura las credenciales de AWS y Mistral en el entorno del backend.
+- Despliega el backend con SAM.
+- Carga la extensión en modo desarrollador de Chrome.
